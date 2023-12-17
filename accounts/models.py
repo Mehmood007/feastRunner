@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
@@ -88,3 +90,36 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label: str) -> bool:
         return True
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    profile_picture = models.ImageField(
+        upload_to="users/profile_pictures", blank=True, null=True
+    )
+    cover_photo = models.ImageField(
+        upload_to="users/cover_photos", blank=True, null=True
+    )
+    address_line_1 = models.CharField(max_length=50, blank=True, null=True)
+    address_line_2 = models.CharField(max_length=50, blank=True, null=True)
+    country = models.CharField(max_length=50, blank=True, null=True)
+    state = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    pin_code = models.CharField(max_length=6, blank=True, null=True)
+    longitude = models.CharField(max_length=20, blank=True, null=True)
+    latitude = models.CharField(max_length=20, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return self.user.email
+
+    def delete(self, *args, **kwargs) -> None:
+        # Delete the file associated with the model instance
+        if self.profile_picture:
+            if os.path.isfile(self.profile_picture.path):
+                os.remove(self.profile_picture.path)
+        if self.cover_photo:
+            if os.path.isfile(self.cover_photo.path):
+                os.remove(self.cover_photo.path)
+        super(UserProfile, self).delete(*args, **kwargs)
