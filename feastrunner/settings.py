@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import logging
+import os
+from logging import Formatter
 from pathlib import Path
 
 from decouple import config
@@ -107,6 +110,46 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Logger settings
+class CustomFormatter(Formatter):
+    def format(self, record):
+        record.timestamp = (
+            record.created
+        )  # Using the log record's created time as a timestamp
+        return super().format(record)
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "custom": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",  # Customize the timestamp format
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",  # Set the level as per your requirement
+            "class": "logging.StreamHandler",
+            "formatter": "custom",  # Use the custom formatter
+        },
+        "file": {
+            "level": "DEBUG",  # Set the level as per your requirement
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "custom_logs.log"),  # Log file path
+            "formatter": "custom",  # Use the custom formatter
+        },
+    },
+    "loggers": {
+        "custom_logger": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",  # Set the level as per your requirement
+            "propagate": True,
+        },
+    },
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -136,3 +179,13 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.ERROR: "danger",
+    messages.SUCCESS: "success",
+    messages.WARNING: "warning",
+    messages.INFO: "primary",
+}
