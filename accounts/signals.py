@@ -7,12 +7,12 @@ from .models import User, UserProfile
 @receiver(post_save, sender=User)
 def post_save_create_profile_receiver(
     sender: User, instance: User, created: bool, **kwargs
-):
+) -> None:
     if created:
         UserProfile.objects.create(user=instance)
     else:
         try:
-            profile = UserProfile.get(user=instance)
+            profile = UserProfile.objects.get(user=instance)
             profile.save()
         except:
             UserProfile.objects.create(user=instance)
