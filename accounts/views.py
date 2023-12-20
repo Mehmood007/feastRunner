@@ -10,7 +10,7 @@ from vendor.forms import VendorForm
 
 from .forms import UserForm
 from .models import User, UserProfile
-from .utils import detect_user
+from .utils import detect_user, send_verification_email
 
 logger = logging.getLogger("custom_logger")
 
@@ -31,6 +31,9 @@ def check_role_customer(user) -> bool or Exception:
 
 # "accounts/registerUser"
 def registerUser(request: HttpRequest) -> render or redirect:
+    if request.user.is_authenticated:
+        messages.warning(request, "You are already logged in")
+        return redirect("my_account")
     if request.method == "POST":
         form = UserForm(request.POST)
         if form.is_valid():
@@ -39,6 +42,8 @@ def registerUser(request: HttpRequest) -> render or redirect:
             user.role = User.CUSTOMER
             user.set_password(password)
             user.save()
+            # send verification mail
+            send_verification_email(request, user)
             messages.success(request, "Your account has been register successfully")
             return redirect("home")
         else:
@@ -72,7 +77,8 @@ def registerVendor(request: HttpRequest) -> render or redirect:
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
             vendor.save()
-
+            # send verification mail
+            send_verification_email(request, user)
             messages.success(
                 request,
                 "Your request has been submitted successfully. Please wait for the approval",
@@ -138,3 +144,8 @@ def customer_dashboard(request: HttpRequest) -> render or redirect:
 @user_passes_test(check_role_vendor)
 def vendor_dashboard(request: HttpRequest) -> render or redirect:
     return render(request, "accounts/vendordashboard.html")
+
+
+# "activate/<uidb64>/<token>"
+def activate(request: HttpRequest, uidb64: str, token: str) -> redirect:
+    pass

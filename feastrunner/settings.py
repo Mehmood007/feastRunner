@@ -188,3 +188,13 @@ MESSAGE_TAGS = {
     messages.WARNING: "warning",
     messages.INFO: "primary",
 }
+
+
+# Email configuration
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT", cast=int)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_FROM_ADDRESS = config("EMAIL_HOST_USER")
+DEFAULT_FROM_EMAIL = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True
