@@ -18,11 +18,12 @@ def detect_user(user: User) -> str:
         return "/admin"
 
 
-def send_verification_email(request: HttpRequest, user: User) -> None:
+def send_verification_email(
+    request: HttpRequest, user: User, mail_subject: str, mail_template: str
+) -> None:
     current_site = get_current_site(request)
-    mail_subject = "Activate your account"
     message = render_to_string(
-        "accounts/emails/account_verification_email.html",
+        mail_template,
         {
             "user": user,
             "domain": current_site,
