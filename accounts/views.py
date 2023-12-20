@@ -2,9 +2,11 @@ import logging
 
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
+from django.utils.http import urlsafe_base64_decode
 
 from vendor.forms import VendorForm
 
@@ -148,4 +150,16 @@ def vendor_dashboard(request: HttpRequest) -> render or redirect:
 
 # "activate/<uidb64>/<token>"
 def activate(request: HttpRequest, uidb64: str, token: str) -> redirect:
-    pass
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Your account is activated")
+        return redirect("my_account")
+    else:
+        messages.error(request, "Invalid activation url")
+        return redirect("home")
