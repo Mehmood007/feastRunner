@@ -1,6 +1,7 @@
 from django.db import models
 
 from accounts.models import User, UserProfile
+from accounts.utils import send_notification
 
 
 class Vendor(models.Model):
@@ -16,3 +17,19 @@ class Vendor(models.Model):
 
     def __str__(self) -> str:
         return self.vendor_name
+
+    def save(self, *args, **kwargs) -> models.Model:
+        if self.pk is not None:
+            original = Vendor.objects.get(pk=self.pk)
+            if original.is_approved != self.is_approved:
+                mail_template = "accounts/emails/admin_approval_email.html"
+                context = {
+                    "user": self.user,
+                    "is_approved": self.is_approved,
+                }
+                if self.is_approved == True:
+                    mail_subject = "Congratulations! Your business has been approved"
+                else:
+                    mail_subject = "Sorry! Your business could not approved"
+                send_notification(mail_subject, mail_template, context)
+        return super(Vendor, self).save(*args, **kwargs)
