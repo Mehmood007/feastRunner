@@ -133,3 +133,15 @@ class UserProfile(models.Model):
             if os.path.isfile(self.cover_photo.path):
                 os.remove(self.cover_photo.path)
         super(UserProfile, self).delete(*args, **kwargs)
+
+    def save(self, *args, **kwargs) -> models.Model:
+        if self.pk:
+            # if updated delete previous pictures
+            original_obj = UserProfile.objects.get(pk=self.pk)
+            if original_obj.profile_picture != self.profile_picture:
+                if os.path.isfile(original_obj.profile_picture.path):
+                    os.remove(original_obj.profile_picture.path)
+            if original_obj.cover_photo != self.cover_photo:
+                if os.path.isfile(original_obj.cover_photo.path):
+                    os.remove(original_obj.cover_photo.path)
+        return super(UserProfile, self).save(*args, **kwargs)
