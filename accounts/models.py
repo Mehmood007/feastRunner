@@ -106,8 +106,7 @@ class UserProfile(models.Model):
     cover_photo = models.ImageField(
         upload_to="users/cover_photos", blank=True, null=True
     )
-    address_line_1 = models.CharField(max_length=50, blank=True, null=True)
-    address_line_2 = models.CharField(max_length=50, blank=True, null=True)
+    address = models.CharField(max_length=250, blank=True, null=True)
     country = models.CharField(max_length=50, blank=True, null=True)
     state = models.CharField(max_length=50, blank=True, null=True)
     city = models.CharField(max_length=50, blank=True, null=True)
@@ -129,3 +128,15 @@ class UserProfile(models.Model):
             if os.path.isfile(self.cover_photo.path):
                 os.remove(self.cover_photo.path)
         super(UserProfile, self).delete(*args, **kwargs)
+
+    def save(self, *args, **kwargs) -> models.Model:
+        if self.pk:
+            # if updated delete previous pictures
+            original_obj = UserProfile.objects.get(pk=self.pk)
+            if original_obj.profile_picture != self.profile_picture:
+                if os.path.isfile(original_obj.profile_picture.path):
+                    os.remove(original_obj.profile_picture.path)
+            if original_obj.cover_photo != self.cover_photo:
+                if os.path.isfile(original_obj.cover_photo.path):
+                    os.remove(original_obj.cover_photo.path)
+        return super(UserProfile, self).save(*args, **kwargs)

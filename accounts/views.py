@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.utils.http import urlsafe_base64_decode
 
 from vendor.forms import VendorForm
+from vendor.models import Vendor
 
 from .forms import UserForm
 from .models import User, UserProfile
