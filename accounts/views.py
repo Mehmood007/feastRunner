@@ -9,7 +9,6 @@ from django.shortcuts import redirect, render
 from django.utils.http import urlsafe_base64_decode
 
 from vendor.forms import VendorForm
-from vendor.models import Vendor
 
 from .forms import UserForm
 from .models import User, UserProfile
@@ -19,14 +18,14 @@ logger = logging.getLogger("custom_logger")
 
 
 # Check if user is vendor
-def check_role_vendor(user) -> bool or Exception:
+def check_role_vendor(user: User) -> True or Exception:
     if user.role == 1:
         return True
     raise PermissionDenied
 
 
 # Check if user is customer
-def check_role_customer(user) -> bool or Exception:
+def check_role_customer(user: User) -> True or Exception:
     if user.role == 2:
         return True
     raise PermissionDenied

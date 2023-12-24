@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 
 from accounts.models import User, UserProfile
@@ -21,6 +23,9 @@ class Vendor(models.Model):
     def save(self, *args, **kwargs) -> models.Model:
         if self.pk is not None:
             original = Vendor.objects.get(pk=self.pk)
+            if original.vendor_license != self.vendor_license:
+                if os.path.isfile(original.vendor_license.path):
+                    os.remove(original.vendor_license.path)
             if original.is_approved != self.is_approved:
                 mail_template = "accounts/emails/admin_approval_email.html"
                 context = {

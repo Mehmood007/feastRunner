@@ -2,7 +2,7 @@ import os
 
 from django.core.exceptions import ValidationError
 
-valid_image_extensions = frozenset({"jpg", "png", "jpeg"})
+valid_image_extensions = frozenset({".jpg", ".png", ".jpeg"})
 
 
 def allow_only_images_validator(file_name: str) -> Exception or None:
