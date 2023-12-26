@@ -114,7 +114,6 @@ def login(request: HttpRequest) -> render or redirect:
         user = auth.authenticate(email=email, password=password)
         if user is not None:
             auth.login(request, user)
-            print("here")
             messages.success(request, "You have logged in successfully")
             return redirect("my_account")
         else:

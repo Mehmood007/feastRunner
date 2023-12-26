@@ -1,13 +1,14 @@
 import os
 
 from django.db import models
+from django.forms import ValidationError
 
 from vendor.models import Vendor
 
 
 class Category(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    category_name = models.CharField(max_length=50, unique=True)
+    category_name = models.CharField(max_length=50)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(max_length=250, blank=True)
     created_at = models.DateTimeField(auto_now=True)
@@ -18,11 +19,19 @@ class Category(models.Model):
 
     def clean(self) -> None:
         self.category_name = self.category_name.capitalize()
+        existing_category = Category.objects.filter(
+            vendor=self.vendor, category_name=self.category_name
+        )
+        if self.pk:
+            existing_category = existing_category.exclude(pk=self.pk)
+        if existing_category.exists():
+            raise ValidationError("Category name must be unique for each vendor.")
         return super().clean()
 
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "Categories"
+        unique_together = ("vendor", "category_name")
 
 
 class FoodItem(models.Model):

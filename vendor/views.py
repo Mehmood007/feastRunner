@@ -1,5 +1,6 @@
 import logging
 
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
@@ -93,11 +94,15 @@ def fooditems_by_category(request: HttpRequest, pk: int = None) -> render:
 @user_passes_test(check_role_vendor)
 def add_category(request: HttpRequest) -> render or redirect:
     if request.method == "POST":
-        form = CategoryForm(request.POST)
+        form = CategoryForm(request.POST.copy())
+        form.data["vendor"] = get_vendor(request)
         if form.is_valid():
             category = form.save(commit=False)
-            category.vendor = get_vendor(request)
             category.slug = slugify(form.cleaned_data["category_name"])
+            category.save()
+            category.slug = (
+                f"{slugify(form.cleaned_data['category_name'])}-{category.id}"
+            )
             category.save()
             messages.success(request, "Category added successfully")
             return redirect("menu_builder")
@@ -118,11 +123,13 @@ def add_category(request: HttpRequest) -> render or redirect:
 def edit_category(request: HttpRequest, pk: int) -> render or redirect:
     category = get_object_or_404(Category, pk=pk)
     if request.method == "POST":
-        form = CategoryForm(request.POST, instance=category)
+        form = CategoryForm(request.POST.copy(), instance=category)
+        form.data["vendor"] = get_vendor(request)
         if form.is_valid():
             category = form.save(commit=False)
-            category.vendor = get_vendor(request)
-            category.slug = slugify(form.cleaned_data["category_name"])
+            category.slug = (
+                f"{slugify(form.cleaned_data['category_name'])}-{category.id}"
+            )
             category.save()
             messages.success(request, "Category added successfully")
             return redirect("menu_builder")
@@ -168,6 +175,9 @@ def add_food(request: HttpRequest) -> render or redirect:
             logger.error(form.errors)
     else:
         form = FoodItemForm()
+        form.fields["category"].queryset = Category.objects.filter(
+            vendor=get_vendor(request)
+        )
     context = {
         "form": form,
     }
@@ -194,6 +204,9 @@ def edit_food(request: HttpRequest, pk: int) -> render or redirect:
             logger.error(form.errors)
     else:
         form = FoodItemForm(instance=fooditem)
+        form.fields["category"].queryset = Category.objects.filter(
+            vendor=get_vendor(request)
+        )
     context = {
         "form": form,
         "fooditem": fooditem,

@@ -8,7 +8,7 @@ from .models import Category, FoodItem
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ("category_name", "description")
+        fields = ("category_name", "description", "vendor")
 
 
 class FoodItemForm(forms.ModelForm):

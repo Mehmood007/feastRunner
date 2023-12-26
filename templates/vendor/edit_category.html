@@ -45,13 +45,16 @@
                                     {% if field.errors %}
 
                                     {% for error in field.errors %}
-                                    <li class="text-danger">{{error}}</li>
+                                    <li class="text-danger my-0">{{error}}</li>
                                     {% endfor %}
 
 
                                     {% endif %}
 
 
+                                    {% endfor %}
+                                    {% for error in form.non_field_errors %}
+                                    <li class="text-danger my-0">{{error}}</li>
                                     {% endfor %}
                                 </ul>
                                 <button type="submit" class="btn btn-info">Update</button>
