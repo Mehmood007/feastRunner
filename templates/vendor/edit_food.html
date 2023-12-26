@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="main-section">
+    {% include 'includes/cover.html' %}
+    <div class="page-section account-header buyer-logged-in">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar here -->
+                {% include 'includes/v_sidebar.html' %}
+                <!-- Sidebar ends -->
+                <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                    <div class="user-dashboard loader-holder">
+                        <div class="user-holder">
+
+                            <h5 class="text-uppercase">Build Your Food Menu</h5>
+                            <hr>
+                            <h6>Edit Food Item</h6>
+                            <button class="btn btn-secondary" onclick="history.back()"><i class="fa fa-angle-left"
+                                    aria-hidden="true"></i> Back</button>
+                            <!-- Add Category Form -->
+                            <form action="{% url 'edit_food' fooditem.id%}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-field-set">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="field-holder">
+                                                <label> Food Title *</label>
+                                                {{form.food_title}}
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="field-holder">
+                                                <label> Category *</label>
+                                                {{form.category}}
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="field-holder">
+                                                <label> Description</label>
+                                                {{form.description}}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="field-holder">
+                                                <label> Price *</label>
+                                                {{form.price}}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="field-holder">
+                                                <label> Image *</label>
+                                                <img src="{{fooditem.image.url}}" alt="Food Image" width="50">
+                                                {{form.image}}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="field-holder">
+                                                <label> Is Available *</label>
+                                                {{form.is_available}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ul>
+                                    {% for field in form %}
+
+                                    {% if field.errors %}
+
+                                    {% for error in field.errors %}
+                                    <li class="text-danger">{{error}}</li>
+                                    {% endfor %}
+
+
+                                    {% endif %}
+
+
+                                    {% endfor %}
+                                </ul>
+                                <button type="submit" class="btn btn-info">Create</button>
+                                <a href="{% url 'delete_food' fooditem.id %}"
+                                    onclick="return confirm('Are you sure? You want to delete this?')"
+                                    class="btn btn-danger m-1"><i class="fa fa-trash m-1" aria-hidden="true"></i>Delete
+                                </a>
+                            </form>
+                            <!-- Add Category Form Ends -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
