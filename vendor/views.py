@@ -9,7 +9,7 @@ from django.template.defaultfilters import slugify
 
 from accounts.forms import UserProfileForm
 from accounts.models import User, UserProfile
-from menu.forms import CategoryForm
+from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
 
 from .forms import VendorForm
@@ -146,3 +146,66 @@ def delete_category(request: HttpRequest, pk: int) -> redirect:
     category.delete()
     messages.success(request, "Category deleted successfully...")
     return redirect("menu_builder")
+
+
+# "accounts/vendor/menu_builder/food/add"
+@login_required(login_url="login")
+@user_passes_test(check_role_vendor)
+def add_food(request: HttpRequest) -> render or redirect:
+    if request.method == "POST":
+        form = FoodItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            fooditem = form.save(commit=False)
+            food_title = form.cleaned_data["food_title"]
+            fooditem.vendor = get_vendor(request)
+            fooditem.save()
+            fooditem.slug = f"{slugify(food_title)}-{fooditem.id}"
+            fooditem.save()
+            messages.success(request, "Successfully added food item")
+            return redirect("fooditems_by_category", fooditem.category.id)
+        else:
+            messages.error(request, "Sorry could not save this food item")
+            logger.error(form.errors)
+    else:
+        form = FoodItemForm()
+    context = {
+        "form": form,
+    }
+    return render(request, "vendor/add_food.html", context)
+
+
+# "accounts/vendor/menu_builder/food/edit/<int:pk>"
+@login_required(login_url="login")
+@user_passes_test(check_role_vendor)
+def edit_food(request: HttpRequest, pk: int) -> render or redirect:
+    fooditem = get_object_or_404(FoodItem, pk=pk)
+    if request.method == "POST":
+        form = FoodItemForm(request.POST, request.FILES, instance=fooditem)
+        if form.is_valid():
+            fooditem = form.save(commit=False)
+            food_title = form.cleaned_data["food_title"]
+            fooditem.vendor = get_vendor(request)
+            fooditem.slug = f"{slugify(food_title)}-{fooditem.id}"
+            fooditem.save()
+            messages.success(request, "Food item added successfully")
+            return redirect("fooditems_by_category", fooditem.category.id)
+        else:
+            messages.error(request, "Sorry could not save this food item")
+            logger.error(form.errors)
+    else:
+        form = FoodItemForm(instance=fooditem)
+    context = {
+        "form": form,
+        "fooditem": fooditem,
+    }
+    return render(request, "vendor/edit_food.html", context)
+
+
+# "accounts/vendor/menu_builder/food/delete/<int:pk>"
+@login_required(login_url="login")
+@user_passes_test(check_role_vendor)
+def delete_food(request: HttpRequest, pk: int) -> render or redirect:
+    fooditem = get_object_or_404(FoodItem, pk=pk)
+    fooditem.delete()
+    messages.success(request, "Fooditem deleted successfully...")
+    return redirect("fooditems_by_category", fooditem.category.id)

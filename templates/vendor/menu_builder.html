@@ -18,13 +18,19 @@
                             <h5 class="text-uppercase">Build Your Food Menu</h5>
                             <hr>
                             <h6>Menu Categories</h6>
-                            <a href="" class="btn btn-success float-right m-1">Add Food <i class="fa fa-plus"
-                                    aria-hidden="true"></i></a>
+                            <a href="{% url 'add_food' %}" class="btn btn-success float-right m-1">Add Food <i
+                                    class="fa fa-plus" aria-hidden="true"></i></a>
                             <a href="{% url 'add_category' %}" class="btn btn-info float-right m-1"><i
                                     class="fa fa-plus" aria-hidden="true"></i> Add Categories </a>
                             <!-- My Restaurant Food Menu -->
                             <table class="table table-striped table-borderless">
                                 <tbody>
+
+                                    {% if not categories %}
+                                    <h5 class="text-center">No Categories found</h5>
+                                    <a href="add_category" class="btn btn-success">Add Category</a>
+                                    {% endif %}
+
                                     {% for category in categories %}
                                     <tr>
                                         <td class="text-left">{{forloop.counter}}</td>

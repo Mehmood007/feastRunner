@@ -31,8 +31,8 @@
                                                                     <div class="drag-list">
                                                                         <div class="item-thumb">
                                                                             <img class="thumbnail"
-                                                                                src="{{profile.profile_picture.url}}"
-                                                                                alt="">
+                                                                                src="{% if profile.profile_picture%} {{profile.profile_picture.url}} {%endif%}"
+                                                                                alt="Profile Picture">
                                                                         </div>
                                                                     </div>
                                                                 </li>
@@ -56,8 +56,8 @@
                                                                     <div class="drag-list">
                                                                         <div class="item-thumb">
                                                                             <img class="thumbnail"
-                                                                                src="{{profile.cover_photo.url}}"
-                                                                                alt="">
+                                                                                src="{% if profile.cover_photo%} {{profile.cover_photo.url}} {%endif%}"
+                                                                                alt="Cover Photo">
                                                                         </div>
                                                                     </div>
                                                                 </li>
