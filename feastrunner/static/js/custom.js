@@ -61,3 +61,64 @@ function onPlaceChanged() {
     });
 
 }
+
+
+$(document).ready(function () {
+    // Add to cart
+    $('.add_to_cart').on('click', function (e) {
+        e.preventDefault();
+        food_id = $(this).attr('data-id')
+        url = $(this).attr('url-id')
+
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function (response) {
+                if (response.status === 'login_required') {
+                    swal('Login Required', 'Please Login to add items to cart', 'info').then(function () {
+                        window.location = '../accounts/login';
+                    });
+                } else if (response.status === 'failed') {
+                    swal('Failed', response.message, 'error');
+                } else {
+                    $('#cart_counter').html(response.cart_count);
+                    $('#qty-' + food_id).html(response.qty);
+                }
+            }
+        })
+    })
+
+
+    // Place cart item quantity on load
+    $('.item_qty').each(function () {
+        var the_id = $(this).attr('id');
+        var quantity = $(this).attr('data-qty');
+        $('#' + the_id).html(quantity);
+    })
+
+    // Decrease Cart
+    $('.decrease_cart').on('click', function (e) {
+        e.preventDefault();
+        food_id = $(this).attr('data-id')
+        url = $(this).attr('url-id')
+
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function (response) {
+                if (response.status === 'login_required') {
+                    swal('Login Required', 'Please login to remove items from cart', 'info').then(function () {
+                        window.location = '../accounts/login';
+                    });
+                } else if (response.status === 'failed') {
+                    swal('Failed', response.message, 'error');
+                } else {
+                    $('#cart_counter').html(response.cart_count);
+                    $('#qty-' + food_id).html(response.qty);
+                }
+            }
+        })
+    })
+})

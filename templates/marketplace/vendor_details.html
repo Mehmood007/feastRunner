@@ -81,7 +81,8 @@
                             <ul class="menu-list">
 
                                 {% for category in categories %}
-                                <li class="active"><a href="#{{category}}" class="menu-category-link"> {{category.category_name}}
+                                <li class="active"><a href="#{{category}}" class="menu-category-link">
+                                        {{category.category_name}}
                                     </a></li>
                                 {% endfor %}
 
@@ -124,9 +125,14 @@
                                                 </div>
                                                 <div class="price-holder">
                                                     <span class="price">£{{food.price}}</span>
-                                                    <a href="#" class="restaurant-add-menu-btn"><i
+                                                    <a href="#" class="decrease_cart" data-id="{{food.id}}"
+                                                        url-id="{% url 'decrease_cart' food.id %}"
+                                                        style="margin-right: 28px;"><i
+                                                            class="icon-minus text-color"></i></a>
+                                                    <label id="qty-{{food.id}}">0</label>
+                                                    <a href="#" class="add_to_cart" data-id="{{food.id}}"
+                                                        url-id="{% url 'add_to_cart' food.id %}"><i
                                                             class="icon-plus4 text-color"></i></a>
-                                                    <span id="add-menu-loader-10"></span>
                                                 </div>
                                             </li>
                                             {% endfor %}
@@ -136,6 +142,12 @@
 
 
                                     </div>
+
+                                    {% for item in cart_items %}
+                                    <span id="qty-{{item.food_item.id}}" class="item_qty d-none"
+                                        data-qty="{{item.quantity}}">{{item.quantity}}</span>
+                                    {% endfor %}
+
                                 </div>
                             </div>
 
