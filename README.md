@@ -8,7 +8,7 @@
 
 - Multi-Restaurant Support
 - Vendor Management System
-- Seach in blogs
+- Search in restaurant
 - Customer Sign-Up and Ordering
 - Order Management
 - Authentication and User Profiles
@@ -31,7 +31,7 @@
 
 
 - **Install Dependencies**  
-  - First make sure virtual enviroment is activated  
+  - First make sure virtual environment is activated  
   - Make sure you have postgres installed on system and running  
 `pip install -r requirements.txt`
 
