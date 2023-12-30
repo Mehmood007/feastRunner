@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -166,3 +166,24 @@ def delete_cart(request: HttpRequest, food_id: int) -> render:
             return JsonResponse({"status": "failed", "message": "No such item exists"})
     else:
         return JsonResponse({"status": "failed", "message": "Request must be ajax"})
+
+
+# "marketplace/search"
+def search(request: HttpRequest) -> render:
+    address = request.GET["address"]
+    longitude = request.GET["lang"]
+    latitude = request.GET["lat"]
+    radius = request.GET["radius"]
+    keyword = request.GET["keyword"]
+    vendors_id_by_food_items = FoodItem.objects.filter(
+        food_title__icontains=keyword, is_available=True
+    ).values_list("vendor", flat=True)
+    vendors = Vendor.objects.filter(
+        Q(id__in=vendors_id_by_food_items)
+        | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True)
+    )
+
+    context = {
+        "vendors": vendors,
+    }
+    return render(request, "marketplace/listings.html", context)
