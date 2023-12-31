@@ -11,6 +11,7 @@
 - Search in restaurant
 - Customer Sign-Up and Ordering
 - Order Management
+- Google Maps Integration
 - Authentication and User Profiles
 - Payment Integration
 - Responsive Design
@@ -35,9 +36,20 @@
   - Make sure you have postgres installed on system and running  
 `pip install -r requirements.txt`
 
+- **Setup .env**  
+  - Create `.env` file inside project  
+  - Look into `.env-sample` and fill `.env` accordingly  
+
 - **Run Migrations in app directory**  
+  - Make sure you have created db in postgres  
   `python manage.py makemigrations`  
   `python manage.py migrate`
+
+- **Google Maps Setup**  
+  - To use google maps make sure you have valid api key setup  
+  - Change database configuration to postgis  
+  - Also install postgis extension in valid database  
+  `CREATE EXTENSION postgis;`
 
 - **Run Server**  
   `python manage.py runserver`
