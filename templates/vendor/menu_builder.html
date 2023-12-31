@@ -28,7 +28,7 @@
 
                                     {% if not categories %}
                                     <h5 class="text-center">No Categories found</h5>
-                                    <a href="add_category" class="btn btn-success">Add Category</a>
+                                    <a href="{% url 'add_category' %}" class="btn btn-success">Add Category</a>
                                     {% endif %}
 
                                     {% for category in categories %}
