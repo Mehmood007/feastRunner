@@ -1,10 +1,10 @@
 import logging
 
-from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest
+from django.db import IntegrityError
+from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
 
@@ -13,8 +13,8 @@ from accounts.models import User, UserProfile
 from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
 
-from .forms import VendorForm
-from .models import Vendor
+from .forms import OpeningHoursForm, VendorForm
+from .models import OpeningHours, Vendor
 
 logger = logging.getLogger("custom_logger")
 
@@ -222,3 +222,75 @@ def delete_food(request: HttpRequest, pk: int) -> render or redirect:
     fooditem.delete()
     messages.success(request, "Fooditem deleted successfully...")
     return redirect("fooditems_by_category", fooditem.category.id)
+
+
+# "accounts/vendor/opening_hours"
+@login_required(login_url="login")
+@user_passes_test(check_role_vendor)
+def opening_hours(request: HttpRequest) -> render:
+    opening_hours = OpeningHours.objects.filter(vendor=get_vendor(request))
+    form = OpeningHoursForm()
+    context = {
+        "opening_hours": opening_hours,
+        "form": form,
+    }
+    return render(request, "vendor/opening_hours.html", context)
+
+
+# "accounts/vendor/opening_hours/add"
+@login_required(login_url="login")
+@user_passes_test(check_role_vendor)
+def add_opening_hours(request: HttpRequest) -> JsonResponse:
+    if (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        and request.method == "POST"
+    ):
+        day = request.POST.get("day")
+        from_hour = request.POST.get("from_hour")
+        to_hour = request.POST.get("to_hour")
+        is_closed = request.POST.get("is_closed")
+        try:
+            hour = OpeningHours.objects.create(
+                vendor=get_vendor(request),
+                day=day,
+                from_hour=from_hour,
+                to_hour=to_hour,
+                is_closed=is_closed,
+            )
+            if hour:
+                day = OpeningHours.objects.get(id=hour.id)
+                if day.is_closed:
+                    response = {
+                        "id": day.id,
+                        "day": day.get_day_display(),
+                        "is_closed": day.is_closed,
+                    }
+                else:
+                    response = {
+                        "id": day.id,
+                        "day": day.get_day_display(),
+                        "is_closed": day.is_closed,
+                        "from_hour": day.from_hour,
+                        "to_hour": day.to_hour,
+                    }
+                response["status"] = "success"
+                response["message"] = "Form added successfully"
+        except Exception as e:
+            logger.error(e)
+            response = {"status": "failed", "message": "Sorry form could not be added"}
+            if isinstance(e, IntegrityError):
+                response["message"] = "Same record already exists"
+        finally:
+            return JsonResponse(response)
+    return JsonResponse({"status": "bad request"})
+
+
+# "accounts/vendor/opening_hours/delete/<int:pk>"
+@login_required(login_url="login")
+@user_passes_test(check_role_vendor)
+def delete_opening_hours(request: HttpRequest, pk: int) -> JsonResponse:
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        hours = get_object_or_404(OpeningHours, pk=pk)
+        hours.delete()
+        return JsonResponse({"status": "success", "id": pk})
+    return JsonResponse({"status": "failed", "id": pk})
