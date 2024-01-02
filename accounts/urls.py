@@ -24,4 +24,6 @@ urlpatterns = [
     path("reset_password/", views.reset_password, name="reset_password"),
     # vendor
     path("vendor/", include("vendor.urls")),
+    # customer
+    path("customer/", include("customers.urls")),
 ]

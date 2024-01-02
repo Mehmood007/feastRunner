@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import HttpRequest
 
+from accounts.models import UserProfile
 from vendor.models import Vendor
 
 
@@ -9,6 +10,15 @@ def get_vendor(request: HttpRequest) -> dict:
     if request.user.is_authenticated and request.user.role == 1:
         vendor = Vendor.objects.get(user=request.user)
         context = {"vendor": vendor}
+        return context
+    return dict()
+
+
+# Return vendor
+def get_customer(request: HttpRequest) -> dict:
+    if request.user.is_authenticated and request.user.role == 2:
+        customer = UserProfile.objects.get(user=request.user)
+        context = {"customer": customer}
         return context
     return dict()
 
