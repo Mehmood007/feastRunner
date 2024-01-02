@@ -1,4 +1,5 @@
-from datetime import date, datetime
+import logging
+from datetime import date
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.gis.db.models.functions import Distance
@@ -13,6 +14,8 @@ from menu.models import Category, FoodItem
 from vendor.models import OpeningHours, Vendor
 
 from .context_processors import get_cart_amount, get_cart_counter
+
+logger = logging.getLogger("custom_logger")
 
 
 # "marketplace/"
@@ -73,7 +76,8 @@ def add_to_cart(request: HttpRequest, food_id: int) -> JsonResponse:
                             "cart_amount": get_cart_amount(request),
                         }
                     )
-                except:
+                except Exception as e:
+                    logger.error(e)
                     Cart.objects.create(
                         user=request.user, food_item=food_item, quantity=1
                     )

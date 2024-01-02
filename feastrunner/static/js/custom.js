@@ -84,9 +84,9 @@ $(document).ready(function () {
                 } else {
                     $('#cart_counter').html(response.cart_count);
                     $('#qty-' + food_id).html(response.qty);
-
+                    console.log(response.cart_amount)
                     // sub_total, tax and grand_total
-                    applyCartAmount(response.cart_amount.sub_total, response.cart_amount.tax, response.cart_amount.grand_total)
+                    applyCartAmount(response.cart_amount.sub_total, response.cart_amount.tax_dict, response.cart_amount.grand_total)
                 }
             }
         })
@@ -124,7 +124,7 @@ $(document).ready(function () {
                         removeCartItem(food_id);
                     }
                     // sub_total, tax and grand_total
-                    applyCartAmount(response.cart_amount.sub_total, response.cart_amount.tax, response.cart_amount.grand_total)
+                    applyCartAmount(response.cart_amount.sub_total, response.cart_amount.tax_dict, response.cart_amount.grand_total)
                 }
             }
         })
@@ -148,7 +148,7 @@ $(document).ready(function () {
                     swal(response.status, response.message, 'success');
                     removeCartItem(cart_id);
                     // sub_total, tax and grand_total
-                    applyCartAmount(response.cart_amount.sub_total, response.cart_amount.tax, response.cart_amount.grand_total)
+                    applyCartAmount(response.cart_amount.sub_total, response.cart_amount.tax_dict, response.cart_amount.grand_total)
                 }
             }
         })
@@ -170,11 +170,15 @@ $(document).ready(function () {
     }
 
     // Cart Amount display
-    function applyCartAmount(sub_total, tax, grand_total) {
+    function applyCartAmount(sub_total, tax_dict, grand_total) {
         if (window.location.pathname == '/marketplace/cart/') {
             $('#sub_total').html(sub_total);
-            $('#tax').html(tax);
             $('#grand_total').html(grand_total);
+            for (key1 in tax_dict) {
+                for (key2 in tax_dict[key1]) {
+                    $('#tax-' + key1).html(tax_dict[key1][key2]);
+                }
+            }
         }
     }
 
@@ -204,17 +208,17 @@ $(document).ready(function () {
                     'is_closed': is_closed,
                     'csrfmiddlewaretoken': csrf_token
                 },
-                success : function(response){
-                    if(response.status==='success'){
-                        if(response.is_closed){
-                            html = '<tr id="hour-"'+response.id+'><td><b>'+response.day+'</b></td> <td>Closed</td> <td><a href="#" class="delete_hour" data-url="/accounts/vendor/opening_hours/delete/'+response.id+'">Remove</a></td></tr>'
-                        }else{
-                            html = '<tr id="hour-'+response.id+'"><td><b>'+response.day+'</b></td> <td>'+response.from_hour+' - '+response.to_hour+'</td> <td><a href="#" class="delete_hour" data-url="/accounts/vendor/opening_hours/delete/'+response.id+'">Remove</a></td></tr>'
+                success: function (response) {
+                    if (response.status === 'success') {
+                        if (response.is_closed) {
+                            html = '<tr id="hour-"' + response.id + '><td><b>' + response.day + '</b></td> <td>Closed</td> <td><a href="#" class="delete_hour" data-url="/accounts/vendor/opening_hours/delete/' + response.id + '">Remove</a></td></tr>'
+                        } else {
+                            html = '<tr id="hour-' + response.id + '"><td><b>' + response.day + '</b></td> <td>' + response.from_hour + ' - ' + response.to_hour + '</td> <td><a href="#" class="delete_hour" data-url="/accounts/vendor/opening_hours/delete/' + response.id + '">Remove</a></td></tr>'
                         }
-                        
+
                         $('.opening_hours').append(html);
                         document.getElementById('opening_hours').reset();
-                    }else{
+                    } else {
                         swal('Field', response.message, 'error');
                     }
                 }
@@ -224,18 +228,18 @@ $(document).ready(function () {
         }
     })
 
-    
-     $(document).on('click', '.delete_hour', function(e){
+
+    $(document).on('click', '.delete_hour', function (e) {
         e.preventDefault();
         url = $(this).attr('data-url');
         $.ajax({
-            type:'GET',
-            url:url,
-            success: function(response){
-                if(response.status==='success'){
-                    document.getElementById('hour-'+response.id).remove();
+            type: 'GET',
+            url: url,
+            success: function (response) {
+                if (response.status === 'success') {
+                    document.getElementById('hour-' + response.id).remove();
                 }
             }
         })
-     })
+    })
 });
