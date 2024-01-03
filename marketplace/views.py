@@ -6,11 +6,14 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.db.models import Prefetch, Q
+from django.forms.models import model_to_dict
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from accounts.models import UserProfile
 from marketplace.models import Cart
 from menu.models import Category, FoodItem
+from orders.forms import OrderForm
 from vendor.models import OpeningHours, Vendor
 
 from .context_processors import get_cart_amount, get_cart_counter
@@ -225,3 +228,21 @@ def search(request: HttpRequest) -> render or redirect:
         "vendors": vendors,
     }
     return render(request, "marketplace/listings.html", context)
+
+
+# "marketplace/checkout"
+@login_required(login_url="login")
+def checkout(request: HttpRequest) -> render or redirect:
+    cart_items = Cart.objects.filter(user=request.user).order_by("created_at")
+    cart_count = cart_items.count()
+    if cart_count <= 0:
+        return redirect("marketplace")
+    user = model_to_dict(request.user)
+    user_profile = model_to_dict(UserProfile.objects.get(user=request.user))
+    default_values = {**user, **user_profile}
+    form = OrderForm(initial=default_values)
+    context = {
+        "form": form,
+        "cart_items": cart_items,
+    }
+    return render(request, "marketplace/checkout.html", context)
