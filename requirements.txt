@@ -1,8 +1,13 @@
 asgiref==3.7.2
 Django==5.0
+GDAL @ file:///home/conda/feedstock_root/build_artifacts/gdal-split_1703367859442/work/build/swig/python
+numpy @ file:///home/conda/feedstock_root/build_artifacts/numpy_1700874463738/work/dist/numpy-1.26.2-cp312-cp312-linux_x86_64.whl#sha256=623edd991be8f808d1f8e311b00923eff511e493e579c21bed09d101c09032d0
+Pillow==10.1.0
 psycopg==3.1.15
 psycopg2==2.9.9
 psycopg2-binary==2.9.9
 python-decouple==3.8
+setuptools==68.2.2
 sqlparse==0.4.4
 typing_extensions==4.9.0
+wheel==0.41.2

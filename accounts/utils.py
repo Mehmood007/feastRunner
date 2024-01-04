@@ -38,6 +38,9 @@ def send_verification_email(
 
 def send_notification(mail_subject: str, mail_template: str, context: dict) -> None:
     message = render_to_string(mail_template, context)
-    to_email = context["user"].email
-    mail = EmailMessage(mail_subject, message, to=[to_email])
+    to_email = context["to_email"]
+    if not type(to_email) == str:
+        mail = EmailMessage(mail_subject, message, to=[*to_email])
+    else:
+        mail = EmailMessage(mail_subject, message, to=[to_email])
     mail.send()
