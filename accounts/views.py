@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.template.defaultfilters import slugify
 from django.utils.http import urlsafe_base64_decode
 
+from orders.models import Order
 from vendor.forms import VendorForm
 
 from .forms import UserForm
@@ -144,7 +145,13 @@ def my_account(request: HttpRequest) -> redirect:
 @login_required(login_url="login")
 @user_passes_test(check_role_customer)
 def customer_dashboard(request: HttpRequest) -> render or redirect:
-    return render(request, "accounts/customerdashboard.html")
+    orders_count = Order.objects.filter(user=request.user, is_ordered=True).count()
+    orders = Order.objects.filter(user=request.user, is_ordered=True)[:5]
+    context = {
+        "orders": orders,
+        "orders_count": orders_count,
+    }
+    return render(request, "accounts/customerdashboard.html", context)
 
 
 # "accounts/vendordashboard"
