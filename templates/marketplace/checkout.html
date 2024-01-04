@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 <div class="main-section pt-5">
 
@@ -18,7 +18,7 @@
                                 <div class="menu-itam-holder">
 
                                     <div id="menu-item-list-6272" class="menu-itam-list">
-                                        <form action="#" method="post">
+                                        <form action="{% url 'place_order' %}" method="post">
                                             {% csrf_token %}
                                             <div class="row">
                                                 <div class="form-group col-lg-6 col-md-6 col-sm-12">
@@ -148,6 +148,17 @@
                                                     <span id="grand_total">{{grand_total}}</span>
                                                 </span>
                                             </li>
+                                            <!-- SELECT Payment method -->
+                                            <h5>SELECT PAYMENT METHOD</h5>
+                                            <div class="payment-method">
+                                                <label>
+                                                    <input type="radio" name="payment_method" value="PayPal"
+                                                        class="payment-method" checked>
+                                                    <img src="{% static 'images/PayPal.png' %}" alt="PayPal"
+                                                        width="100">
+                                                </label>
+                                            </div>
+                                            <!-- SELECT Payment method -->
                                             <button type="submit" class="btn btn-danger w-100 p-2 mt-3">PROCEED TO
                                                 CHECKOUT</button>
                                             </form>

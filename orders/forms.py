@@ -16,4 +16,5 @@ class OrderForm(forms.ModelForm):
             "state",
             "city",
             "pin_code",
+            "payment_method",
         ]

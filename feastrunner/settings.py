@@ -77,6 +77,7 @@ TEMPLATES = [
                 "accounts.context_processors.get_vendor",
                 "accounts.context_processors.get_customer",
                 "accounts.context_processors.get_google_api_key",
+                "accounts.context_processors.get_paypal_client_id",
                 "marketplace.context_processors.get_cart_counter",
                 "marketplace.context_processors.get_cart_amount",
             ],
@@ -211,3 +212,6 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 
 GOOGLE_API_KEY = config("GOOGLE_API_KEY")
+PAYPAL_CLIENT_ID = config("PAYPAL_CLIENT_ID")
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
