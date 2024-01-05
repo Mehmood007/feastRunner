@@ -35,4 +35,11 @@ urlpatterns = [
         views.delete_opening_hours,
         name="delete_opening_hours",
     ),
+    # Orders from vendor prospective
+    path("my_orders", views.vendor_my_orders, name="vendor_my_orders"),
+    path(
+        "vendor_order_details/<int:order_number>",
+        views.vendor_order_details,
+        name="vendor_order_details",
+    ),
 ]

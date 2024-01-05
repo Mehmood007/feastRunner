@@ -19,6 +19,7 @@ class OrderAdmin(admin.ModelAdmin):
         "payment_method",
         "status",
         "is_ordered",
+        "place_order_to",
     ]
     inlines = [OrderedFoodItemInline]
 

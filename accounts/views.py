@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -11,6 +12,7 @@ from django.utils.http import urlsafe_base64_decode
 
 from orders.models import Order
 from vendor.forms import VendorForm
+from vendor.models import Vendor
 
 from .forms import UserForm
 from .models import User, UserProfile
@@ -158,7 +160,32 @@ def customer_dashboard(request: HttpRequest) -> render or redirect:
 @login_required(login_url="login")
 @user_passes_test(check_role_vendor)
 def vendor_dashboard(request: HttpRequest) -> render or redirect:
-    return render(request, "accounts/vendordashboard.html")
+    vendor = Vendor.objects.get(user=request.user)
+    orders_count = Order.objects.filter(
+        vendors__in=[vendor.id], is_ordered=True
+    ).count()
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by(
+        "created_at"
+    )[:5]
+    current_month = datetime.now().month
+    current_month_orders = (
+        Order.objects.filter(vendors__in=[vendor.id], is_ordered=True)
+        .order_by("created_at")
+        .filter(created_at__month=current_month)
+    )
+    current_month_revenue = 0
+    for order in current_month_orders:
+        current_month_revenue += order.get_total_by_vendor["grand_total"]
+    total_revenue = 0
+    for order in orders:
+        total_revenue += order.get_total_by_vendor["grand_total"]
+    context = {
+        "orders": orders,
+        "orders_count": orders_count,
+        "total_revenue": total_revenue,
+        "current_month_revenue": current_month_revenue,
+    }
+    return render(request, "accounts/vendordashboard.html", context)
 
 
 # "activate/<uidb64>/<token>"

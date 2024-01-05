@@ -12,6 +12,7 @@ from accounts.forms import UserProfileForm
 from accounts.models import User, UserProfile
 from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
+from orders.models import Order, OrderedFood
 
 from .forms import OpeningHoursForm, VendorForm
 from .models import OpeningHours, Vendor
@@ -294,3 +295,39 @@ def delete_opening_hours(request: HttpRequest, pk: int) -> JsonResponse:
         hours.delete()
         return JsonResponse({"status": "success", "id": pk})
     return JsonResponse({"status": "failed", "id": pk})
+
+
+# "accounts/vendor/order_details/<order_number>"
+@login_required(login_url="login")
+@user_passes_test(check_role_vendor)
+def vendor_order_details(request: HttpRequest, order_number: int) -> JsonResponse:
+    try:
+        order = Order.objects.get(order_number=order_number, is_ordered=True)
+        ordered_foods = OrderedFood.objects.filter(
+            order=order, fooditem__vendor=get_vendor(request)
+        )
+        context = {
+            "order": order,
+            "ordered_foods": ordered_foods,
+            "sub_total": order.get_total_by_vendor["sub_total"],
+            "tax_data": order.get_total_by_vendor["tax_dict"],
+            "total": order.get_total_by_vendor["grand_total"],
+        }
+    except Exception as e:
+        logger.error(e)
+        return redirect("home")
+    return render(request, "vendor/vendor_order_details.html", context)
+
+
+# "accounts/vendor/my_orders"
+@login_required(login_url="login")
+@user_passes_test(check_role_vendor)
+def vendor_my_orders(request: HttpRequest) -> render:
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by(
+        "-created_at"
+    )
+    context = {
+        "orders": orders,
+    }
+    return render(request, "vendor/my_orders.html", context)

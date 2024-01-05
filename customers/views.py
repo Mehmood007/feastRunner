@@ -82,6 +82,7 @@ def order_details(request: HttpRequest, order_number: int) -> render or redirect
             "sub_total": sub_total,
             "tax_data": tax_data,
         }
-    except:
+    except Exception as e:
+        logger.error(e)
         return redirect("home")
     return render(request, "customers/order_details.html", context)
