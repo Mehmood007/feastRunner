@@ -33,6 +33,7 @@ def send_verification_email(
     )
     to_email = user.email
     mail = EmailMessage(mail_subject, message, to=[to_email])
+    mail.content_subtype = "html"
     mail.send()
 
 
@@ -43,4 +44,5 @@ def send_notification(mail_subject: str, mail_template: str, context: dict) -> N
         mail = EmailMessage(mail_subject, message, to=[*to_email])
     else:
         mail = EmailMessage(mail_subject, message, to=[to_email])
+    mail.content_subtype = "html"
     mail.send()

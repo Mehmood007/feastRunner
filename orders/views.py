@@ -3,6 +3,7 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import redirect, render
 
@@ -10,10 +11,11 @@ from accounts.utils import send_notification
 from marketplace.context_processors import get_cart_amount
 from marketplace.models import Cart, Tax
 from menu.models import FoodItem
+from vendor.models import Vendor
 
 from .forms import OrderForm
 from .models import Order, OrderedFood, Payment
-from .utils import generate_order_number
+from .utils import generate_order_number, get_order_by_vendor
 
 logger = logging.getLogger("custom_logger")
 
@@ -114,22 +116,45 @@ def payments(request: HttpRequest) -> JsonResponse:
             ordered_food.amount = item.food_item.price * item.quantity
             ordered_food.save()
 
+        domain = get_current_site(request)
+        # Send email to customer
         mail_subject = "Thank you for ordering"
         email_template = "orders/order_confirmation_email.html"
+        ordered_food = OrderedFood.objects.filter(order=order)
+        customer_sub_total = 0
+        for item in ordered_food:
+            customer_sub_total += item.quantity * item.price
+        tax_data = json.loads(order.tax_data)
         context = {
             "user": request.user,
             "order": order,
             "to_email": order.email,
+            "ordered_food": ordered_food,
+            "domain": domain,
+            "customer_sub_total": customer_sub_total,
+            "tax_data": tax_data,
         }
         send_notification(mail_subject, email_template, context)
+
+        # Send order received email to Vendor
         mail_subject = "You have received new order"
         email_template = "orders/new_order_received.html"
-        context = {
-            "user": request.user,
-            "order": order,
-            "to_email": vendor_emails,
-        }
-        send_notification(mail_subject, email_template, context)
+        for email in vendor_emails:
+            ordered_food_to_vendor = OrderedFood.objects.filter(
+                order=order, fooditem__vendor__user__email=email
+            )
+            vendor = Vendor.objects.get(user__email=email)
+            vendor_order = get_order_by_vendor(order, vendor.id)
+            context = {
+                "user": request.user,
+                "order": order,
+                "to_email": email,
+                "ordered_food_to_vendor": ordered_food_to_vendor,
+                "sub_total": vendor_order["sub_total"],
+                "tax_data": vendor_order["tax_dict"],
+                "grand_total": vendor_order["grand_total"],
+            }
+            send_notification(mail_subject, email_template, context)
         cart_items.delete()
         response = {
             status: "success",
