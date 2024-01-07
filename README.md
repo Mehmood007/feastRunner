@@ -41,16 +41,17 @@
   - Create `.env` file inside project  
   - Look into `.env-sample` and fill `.env` accordingly  
 
-- **Run Migrations in app directory**  
-  - Make sure you have created db in postgres  
-  `python manage.py makemigrations`  
-  `python manage.py migrate`
-
 - **Google Maps Setup**  
   - To use google maps make sure you have valid api key setup  
   - Change database configuration to postgis  
   - Also install postgis extension in valid database  
   `CREATE EXTENSION postgis;`
+
+- **Run Migrations in app directory**  
+  - Make sure you have created db in postgres  
+  `python manage.py makemigrations`  
+  `python manage.py migrate`
+
 
 - **Run Server**  
   `python manage.py runserver`

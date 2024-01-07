@@ -84,7 +84,6 @@ $(document).ready(function () {
                 } else {
                     $('#cart_counter').html(response.cart_count);
                     $('#qty-' + food_id).html(response.qty);
-                    console.log(response.cart_amount)
                     // sub_total, tax and grand_total
                     applyCartAmount(response.cart_amount.sub_total, response.cart_amount.tax_dict, response.cart_amount.grand_total)
                 }
